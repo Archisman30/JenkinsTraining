@@ -7,40 +7,42 @@ curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s htt
 chmod +x ./kubectl
 sudo mv ./kubectl /usr/bin/kubectl
 
-aws s3 mb s3://linuxworld.in.k8s --region ap-south-1
+aws s3 mb s3://s3 storage name any name you want to give --region ap-south-1
 
-Create private hosted zone in AWS Route53
+Create private hosted zone in AWS -----Route53 <---------(if we create the dns name which we will give in the cluster name)
 
-export KOPS_CLUSTER_NAME=jenkinstraining.com
-export KOPS_STATE_STORE=s3://linuxworld.in.k8s
+export KOPS_CLUSTER_NAME=(name provided in route53) <-----------then only we have to use this  (2)
+export KOPS_STATE_STORE=s3://linuxworld.in.k8s     (1)<---------- provide the s3 storage name
 
 # vim /root/.bashrc 
-export KOPS_CLUSTER_NAME=jenkinstraining.com
-export KOPS_STATE_STORE=s3://linuxworld.in.k8s
+export KOPS_CLUSTER_NAME=(cluster name as given in the route53 service) <----- without braces
+export KOPS_STATE_STORE=s3://s3 storage name given by you
 
 
 
 ssh-keygen
 
+(in this case using this same cluster is not free)
+
 kops create cluster \
 --state=${KOPS_STATE_STORE} \
 --node-count=2 \
---master-size=t3.medium \
---node-size=t3.medium \
+--master-size=t3.medium \   <------(you can change to t2.micro it will be slow)
+--node-size=t3.medium \     <-------(you can change to t2.micro it will be slow) 
 --zones=ap-south-1a,ap-south-1b \
 --name=${KOPS_CLUSTER_NAME} \
 --dns private \
 --master-count 1
 
 
-kops get cluster
+kops get cluster  <-------( after running this command this will show if the cluster is ready)
 
-kops update cluster --name jenkinstraining.com --yes --admin
+kops update cluster --name jenkinstraining.com --yes --admin  <-------( this will be also provided)
 
 kops validate cluster --wait 10m
 
 
-ssh -i ~/.ssh/id_rsa ubuntu@api.jenkinstraining.com
+ssh -i ~/.ssh/id_rsa ubuntu@api.jenkinstraining.com   <---------( this will also provided in the command line if in the future we want to connect to the master) dont copy paste this cmd
 
 kops delete cluster  --yes
 
